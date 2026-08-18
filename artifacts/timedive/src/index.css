@@ -159,6 +159,11 @@ h1, h2, h3, h4, .font-brand {
   bottom: -20px;
 }
 
+@keyframes bob {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+}
+
 @keyframes float-up {
   0% { transform: translateY(0) scale(1); opacity: 0; }
   10% { opacity: 1; }
