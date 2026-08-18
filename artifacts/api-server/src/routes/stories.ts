@@ -198,4 +198,118 @@ Fun Facts 🎉
   });
 });
 
+// POST /stories/custom — generate a story for any free-text historical topic
+router.post("/stories/custom", requireAuth, async (req, res): Promise<void> => {
+  const userId = req.session!.userId as number;
+  const { customTopic } = req.body ?? {};
+
+  if (!customTopic || typeof customTopic !== "string" || customTopic.trim().length < 2) {
+    res.status(400).json({ error: "customTopic is required (min 2 characters)" });
+    return;
+  }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
+  const [prefs] = await db.select().from(userPreferencesTable).where(eq(userPreferencesTable.userId, userId)).limit(1);
+
+  const ageMode = user?.ageMode ?? "adult";
+  const ageNum = user?.age;
+  const ageStr = ageNum ? `The user is ${ageNum} years old.` : "";
+
+  const interests: string[] = [
+    ...(prefs?.sports ?? []),
+    ...(prefs?.videoGames ?? []),
+    ...(prefs?.movieGenres ?? []),
+    ...(prefs?.hobbies ?? []).filter(h => !h.startsWith("History interest:")),
+    ...(prefs?.books ?? []),
+  ];
+  const interestsStr = interests.length > 0
+    ? `The user's hobbies and interests include: ${interests.join(", ")}.`
+    : "";
+
+  const readingLevel = ageMode === "kid"
+    ? "Write for a child: very simple vocabulary, short sentences, lots of fun comparisons and vivid imagery."
+    : ageMode === "teen"
+    ? "Write for a teenager: engaging and conversational, not too simple but not overly academic."
+    : "Write for an adult: rich language, nuanced analysis, still fun and conversational — never textbook-dry.";
+
+  const prompt = `You are TimeDive, an expert history storyteller who makes the past vivid and personal.
+
+The user wants to learn about: "${customTopic.trim()}"
+
+Write a short, engaging, historically accurate story (350–550 words) about this topic.
+
+IMPORTANT ACCURACY REQUIREMENTS:
+- Ground every claim in documented historical facts from reputable sources (encyclopedias, academic consensus, primary sources).
+- If the topic is a specific person, include real biographical details: dates, places, key achievements.
+- If the topic is an era or event, include verified dates, causes, key figures, and lasting consequences.
+- Never invent facts — if something is uncertain, say "historians believe" or "according to records".
+- Draw from scholarship like Encyclopaedia Britannica, the Oxford Dictionary of National Biography, and peer-reviewed history.
+
+${readingLevel}
+${ageStr}
+${interestsStr}
+
+${interests.length > 0 ? "Naturally weave the user's interests into the story as comparisons, character analogies, or modern parallels — make it feel personally written for them." : ""}
+
+After the main story, add a section titled "Fun Facts 🎉" with exactly 3–5 short, surprising, TRUE facts about this topic. Format them as a bulleted list starting with •.
+
+Format your response as:
+[main story text here]
+
+Fun Facts 🎉
+• [fact 1]
+• [fact 2]
+• [fact 3]`;
+
+  const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+  const baseUrl = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+
+  if (!apiKey) {
+    res.status(503).json({ error: "Story generation is not configured. Please set ANTHROPIC_API_KEY." });
+    return;
+  }
+
+  try {
+    const anthropicBaseUrl = baseUrl || "https://api.anthropic.com";
+    const response = await fetch(`${anthropicBaseUrl}/v1/messages`, {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1200,
+        messages: [{ role: "user", content: prompt }],
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      req.log.error({ status: response.status, body: errText }, "Claude API error");
+      throw new Error(`Claude API returned ${response.status}`);
+    }
+
+    const data = await response.json() as { content: Array<{ type: string; text: string }> };
+    const fullText = data.content.find(b => b.type === "text")?.text ?? "";
+
+    let storyText: string;
+    let funFacts: string;
+    const funFactsIndex = fullText.indexOf("Fun Facts");
+    if (funFactsIndex > -1) {
+      storyText = fullText.substring(0, funFactsIndex).trim();
+      funFacts = fullText.substring(funFactsIndex).trim();
+    } else {
+      storyText = fullText.trim();
+      funFacts = "Fun Facts 🎉\n• This topic has a rich history waiting to be explored!";
+    }
+
+    res.json({ customTopic: customTopic.trim(), storyText, funFacts });
+  } catch (err) {
+    req.log.error({ err }, "Custom story generation failed");
+    res.status(500).json({ error: "Story generation failed. Please try again." });
+  }
+});
+
 export default router;

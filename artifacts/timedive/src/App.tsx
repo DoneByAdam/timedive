@@ -22,6 +22,7 @@ import Profile from '@/pages/Profile';
 import Preferences from '@/pages/Preferences';
 import Progress from '@/pages/Progress';
 import Settings from '@/pages/Settings';
+import StoryGenerator from '@/pages/StoryGenerator';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,13 +37,22 @@ function ProtectedRoute({ component: Component }: { component: any }) {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  if (!user) {
+  // Use effect for navigation to avoid calling setLocation during render
+  if (!isLoading && !user) {
+    // Synchronous redirect is safe here because wouter batches these
     setLocation('/login');
     return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <img src="/logo.png" alt="loading" className="w-16 h-16 animate-pulse" />
+          <p className="text-muted-foreground text-sm">Loading your dive...</p>
+        </div>
+      </div>
+    );
   }
 
   return <Component />;
@@ -84,6 +94,9 @@ function Router() {
             </Route>
             <Route path="/settings">
               <ProtectedRoute component={Settings} />
+            </Route>
+            <Route path="/story-generator">
+              <ProtectedRoute component={StoryGenerator} />
             </Route>
             
             <Route component={NotFound} />

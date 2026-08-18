@@ -1,8 +1,9 @@
 import { useListTopics } from '@workspace/api-client-react';
 import { Link } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Submarine } from '@/components/Submarine';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, Sparkles } from 'lucide-react';
 
 export default function Timeline() {
   const { data: topics, isLoading } = useListTopics();
@@ -46,13 +47,20 @@ export default function Timeline() {
       <div className="fixed top-0 left-0 right-0 h-32 bg-gradient-to-b from-blue-300/20 to-transparent pointer-events-none z-0" />
       
       <div className="container mx-auto px-4 py-12 relative z-10 max-w-5xl">
-        <div className="text-center mb-16 pt-8">
+        <div className="text-center mb-10 pt-8">
           <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-md mb-4">
             The Ocean of History
           </h1>
-          <p className="text-blue-100 text-lg max-w-2xl mx-auto">
+          <p className="text-blue-100 text-lg max-w-2xl mx-auto mb-6">
             Scroll down to dive deeper into the past. The deeper you go, the older the era.
           </p>
+          {/* Story Generator CTA */}
+          <Link href="/story-generator">
+            <Button size="lg" className="gap-2 bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-semibold shadow-xl shadow-yellow-900/30 border-0">
+              <Sparkles size={18} />
+              Generate a Story on Any Topic
+            </Button>
+          </Link>
         </div>
         
         {/* The Depth Line */}

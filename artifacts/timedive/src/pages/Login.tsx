@@ -23,8 +23,9 @@ export default function Login() {
       { data: { email, password } },
       {
         onSuccess: (user) => {
-          queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() });
-          toast({ title: "Welcome back!" });
+          // Seed the cache immediately so ProtectedRoute sees the user right away
+          queryClient.setQueryData(getGetMeQueryKey(), user);
+          toast({ title: `Welcome back, ${user.displayName}!` });
           if (!user.onboardingComplete) {
             setLocation('/onboarding');
           } else {
@@ -46,24 +47,24 @@ export default function Login() {
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-4 relative overflow-hidden ocean-timeline">
       <div className="bubbles-container">
         {Array.from({ length: 10 }).map((_, i) => (
-          <div 
-            key={i} 
+          <div
+            key={i}
             className="bubble"
             style={{
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 20 + 10}px`,
-              height: `${Math.random() * 20 + 10}px`,
-              animationDuration: `${Math.random() * 4 + 4}s`,
-              animationDelay: `${Math.random() * 5}s`
+              left: `${(i * 11 + 5) % 100}%`,
+              width: `${(i % 3) * 8 + 10}px`,
+              height: `${(i % 3) * 8 + 10}px`,
+              animationDuration: `${(i % 4) + 4}s`,
+              animationDelay: `${(i * 0.7) % 5}s`
             }}
           />
         ))}
       </div>
-      
+
       <Card className="w-full max-w-md z-10 shadow-2xl bg-card/95 backdrop-blur border-primary/20">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Submarine animated={false} />
+            <Submarine animated={false} className="w-20 h-20" />
           </div>
           <CardTitle className="text-3xl">Log In</CardTitle>
           <CardDescription>Continue your historical journey</CardDescription>
@@ -104,7 +105,7 @@ export default function Login() {
               {login.isPending ? "Logging in..." : "Log In"}
             </Button>
             <div className="text-sm text-center text-muted-foreground">
-              Don't have an account?{' '}
+              New explorer?{' '}
               <Link href="/register" className="text-primary hover:underline">
                 Sign up
               </Link>

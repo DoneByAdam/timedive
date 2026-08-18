@@ -2,7 +2,7 @@ import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout, getGetMeQueryKey } from '@workspace/api-client-react';
 import { Button } from './ui/button';
-import { Compass, Settings, LogOut, User } from 'lucide-react';
+import { Compass, Settings, LogOut, User, Sparkles } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAccessibility } from '@/hooks/use-accessibility';
 import {
@@ -63,6 +63,9 @@ export function Navbar() {
             <>
               <Link href="/timeline" className="hidden sm:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
                 <Compass size={18} /> Timeline
+              </Link>
+              <Link href="/story-generator" className="hidden sm:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
+                <Sparkles size={18} /> Story Generator
               </Link>
               <Link href="/progress" className="hidden sm:flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
                 <User size={18} /> Progress
