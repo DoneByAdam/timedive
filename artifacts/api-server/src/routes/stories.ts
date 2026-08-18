@@ -119,7 +119,7 @@ Fun Facts 🎉
 (optional • [fact 4])
 (optional • [fact 5])`;
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
   const baseUrl = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
 
   let storyText: string;
