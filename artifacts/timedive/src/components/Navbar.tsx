@@ -2,7 +2,6 @@ import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout, getGetMeQueryKey } from '@workspace/api-client-react';
 import { Button } from './ui/button';
-import { Submarine } from './Submarine';
 import { Compass, Settings, LogOut, User } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAccessibility } from '@/hooks/use-accessibility';
@@ -35,8 +34,8 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href={user ? "/timeline" : "/"} className="flex items-center gap-3 group">
-          <Submarine className="w-12 h-10 group-hover:scale-110 transition-transform" animated={false} />
-          <span className="text-xl font-bold tracking-tight text-primary">TimeDive</span>
+          <img src="/logo.jpeg" alt="TimeDive" className="h-10 w-10 rounded-xl object-cover group-hover:scale-110 transition-transform" />
+          <span className="text-2xl font-bold tracking-tight text-primary font-brand">TimeDive</span>
         </Link>
         
         <div className="flex items-center gap-4">

@@ -42,38 +42,42 @@
 }
 
 :root {
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-accessible: 'Atkinson Hyperlegible', sans-serif;
+
   /* Default Deep Ocean Vibe */
-  --background: 220 50% 8%;
-  --foreground: 180 20% 90%;
+  --background: 223 75% 10%;
+  --foreground: 0 0% 100%;
   
-  --card: 220 50% 12%;
-  --card-foreground: 180 20% 90%;
-  --card-border: 220 40% 20%;
+  --card: 223 75% 15%;
+  --card-foreground: 0 0% 100%;
+  --card-border: 223 75% 25%;
   
-  --popover: 220 50% 12%;
-  --popover-foreground: 180 20% 90%;
-  --popover-border: 220 40% 20%;
+  --popover: 223 75% 15%;
+  --popover-foreground: 0 0% 100%;
+  --popover-border: 223 75% 25%;
   
-  --primary: 180 100% 40%;
-  --primary-foreground: 220 50% 10%;
+  --primary: 221 79% 48%; /* #1A56DB */
+  --primary-foreground: 0 0% 100%;
   
-  --secondary: 200 60% 30%;
-  --secondary-foreground: 180 20% 95%;
+  --secondary: 223 75% 25%;
+  --secondary-foreground: 0 0% 100%;
   
-  --muted: 220 40% 15%;
-  --muted-foreground: 200 20% 70%;
+  --muted: 223 75% 20%;
+  --muted-foreground: 217 30% 70%;
   
-  --accent: 190 80% 40%;
-  --accent-foreground: 220 50% 10%;
+  --accent: 25 95% 53%; /* #F97316 */
+  --accent-foreground: 0 0% 100%;
   
   --destructive: 0 80% 60%;
   --destructive-foreground: 0 0% 100%;
   
-  --border: 220 40% 20%;
-  --input: 220 40% 20%;
-  --ring: 180 100% 40%;
+  --border: 223 75% 25%;
+  --input: 223 75% 25%;
+  --ring: 221 79% 48%;
 
-  --app-font-sans: 'Atkinson Hyperlegible', sans-serif;
+  --app-font-sans: var(--font-body);
   --radius: 0.75rem;
 
   --text-base-size: 16px;
@@ -111,6 +115,14 @@ html {
   font-size: var(--text-base-size);
 }
 
+body {
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, .font-brand {
+  font-family: var(--font-heading);
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -123,10 +135,10 @@ html {
 /* Ocean Timeline Gradient and Bubbles */
 .ocean-timeline {
   background: linear-gradient(180deg, 
-    hsl(190, 80%, 40%) 0%, 
-    hsl(210, 60%, 25%) 30%, 
-    hsl(220, 50%, 15%) 60%, 
-    hsl(230, 40%, 8%) 100%);
+    hsl(221, 79%, 48%) 0%, 
+    hsl(223, 75%, 35%) 30%, 
+    hsl(223, 75%, 20%) 60%, 
+    hsl(223, 75%, 10%) 100%);
   position: relative;
   overflow: hidden;
 }

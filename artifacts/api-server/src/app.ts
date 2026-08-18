@@ -6,6 +6,8 @@ import router from "./routes";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
+// Trust the Replit reverse proxy so secure cookies and X-Forwarded-* headers work correctly
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -42,6 +44,7 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
     },
   })

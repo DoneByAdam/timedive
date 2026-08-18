@@ -3,7 +3,6 @@ import { useAuth } from '@/hooks/use-auth';
 import { useGetDashboardSummary } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Submarine } from '@/components/Submarine';
 import { ArrowRight, Trophy, BookOpen, Anchor, Compass } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
@@ -13,7 +12,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <Submarine animated />
+        <img src="/logo.jpeg" alt="TimeDive" className="h-16 w-16 rounded-xl object-cover animate-pulse" />
       </div>
     );
   }
@@ -43,7 +42,12 @@ export default function Home() {
       <div className="light-rays" />
       
       <div className="z-10 max-w-3xl mx-auto flex flex-col items-center">
-        <Submarine className="w-32 h-24 mb-8 scale-150" />
+        <div className="mx-auto mb-8 flex items-center justify-center">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-3xl blur-2xl opacity-40 bg-blue-400 scale-110" />
+            <img src="/logo.jpeg" alt="TimeDive" className="relative h-28 w-28 rounded-3xl object-cover shadow-2xl" />
+          </div>
+        </div>
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 drop-shadow-lg">
           Dive Into History
         </h1>
@@ -70,7 +74,7 @@ function Dashboard() {
   if (isLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <Submarine animated />
+        <img src="/logo.jpeg" alt="TimeDive" className="h-16 w-16 rounded-xl object-cover animate-pulse" />
       </div>
     );
   }
