@@ -1,19 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGetStory, useGenerateStory, useCompleteTopic, getGetProgressQueryKey, getGetDashboardSummaryQueryKey, getGetStoryQueryKey } from '@workspace/api-client-react';
-
-function stripMarkdown(text: string): string {
-  return text
-    .replace(/\*\*\*(.+?)\*\*\*/g, '$1')
-    .replace(/\*\*(.+?)\*\*/g, '$1')
-    .replace(/\*(.+?)\*/g, '$1')
-    .replace(/___(.+?)___/g, '$1')
-    .replace(/__(.+?)__/g, '$1')
-    .replace(/_([^_\n]+)_/g, '$1')
-    .replace(/^#{1,6}\s+/gm, '')
-    .replace(/`(.+?)`/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .trim();
-}
+import { stripMarkdown } from '@/lib/strip-markdown';
 import { useRoute, Link, useLocation } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';

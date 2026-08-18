@@ -6,26 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ReadAloud } from '@/components/ReadAloud';
 import { useAuth } from '@/hooks/use-auth';
+import { stripMarkdown } from '@/lib/strip-markdown';
 import { Sparkles, ArrowLeft, RefreshCw, BookOpen, Plus, X } from 'lucide-react';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
-
-// ─── Markdown stripper ──────────────────────────────────────────────────────
-// Removes bold, italic, headers, inline code so text reads cleanly
-// and the voice reader doesn't say "asterisk asterisk"
-function stripMarkdown(text: string): string {
-  return text
-    .replace(/\*\*\*(.+?)\*\*\*/g, '$1')   // ***bold-italic***
-    .replace(/\*\*(.+?)\*\*/g, '$1')        // **bold**
-    .replace(/\*(.+?)\*/g, '$1')            // *italic*
-    .replace(/___(.+?)___/g, '$1')          // ___bold-italic___
-    .replace(/__(.+?)__/g, '$1')            // __bold__
-    .replace(/_([^_\n]+)_/g, '$1')          // _italic_
-    .replace(/^#{1,6}\s+/gm, '')            // # headings
-    .replace(/`(.+?)`/g, '$1')              // `inline code`
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [link](url) → link text
-    .trim();
-}
 
 async function generateCustomStory(payload: {
   customTopic: string;
