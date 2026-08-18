@@ -1,0 +1,133 @@
+Build "TimeDive" — a full-stack web app on Replit that teaches history through
+short, personalized, fun stories, for both kids and adults. Use a Node.js/
+Express backend (or Python/Flask, whichever Replit's stack defaults to) with
+a Postgres database (Replit's built-in database), and a responsive, mobile-
+first frontend.
+
+CONCEPT & CREATIVE DIRECTION
+- The core metaphor is "diving" into history: represent different historical
+  periods as ocean depths on a visual timeline — shallow, sunlit water for
+  recent history, and progressively deeper, darker trenches for ancient
+  civilizations. A friendly mascot (e.g. a submarine, diving bell, or sea
+  turtle time-traveler) guides the user between eras.
+- History should never be presented as a dry list of dates and facts. Every
+  topic is delivered as a short, vivid story that weaves in the user's own
+  interests as characters, settings, or comparisons, plus a follow-up "fun
+  facts" section, and (optionally) a tiny end-of-story quiz or memory game
+  to reinforce retention.
+
+VISUAL DESIGN & ACCESSIBILITY
+- Deep blue, ocean-immersive aesthetic throughout: gradients from bright
+  sunlit blue near the surface to deep navy/indigo in "deeper" sections,
+  with subtle ambient motion (drifting particles/bubbles, soft light rays)
+  that never distracts from readability.
+- Use the Atkinson Hyperlegible font site-wide — it's specifically designed
+  for readers with low vision and reading difficulties. Pair it with strong
+  color contrast, generous line spacing, and a minimum comfortable base
+  font size.
+- Include a visible accessibility control panel: adjustable text size, a
+  high-contrast toggle, and a "read this aloud" button on every screen with
+  text (not just inside stories).
+- Design mobile-first: touch-friendly tap targets, no hover-dependent
+  interactions, and layouts that work cleanly from small phones up to
+  desktop. Treat mobile as the primary experience, not an afterthought.
+
+ACCOUNTS & AUTHENTICATION
+- Email/password sign-up and login, with passwords hashed (e.g. bcrypt) —
+  never store plain-text passwords.
+- Implement "forgot password": generate a time-limited reset token, email
+  the user a reset link (use an email API such as Resend or SendGrid — free
+  tier is fine), and let them set a new password from that link.
+- Sessions should persist securely (e.g. signed session cookies or JWT) so
+  users stay logged in across visits and devices.
+
+USER PROFILE & PERSONALIZATION
+- During onboarding, collect: age (or "prefer not to say" with a
+  kid/teen/adult mode toggle instead), school grade if applicable, and a
+  set of interest categories — favorite sports, video games, movie/show
+  genres, hobbies, favorite toys, books they've enjoyed, and their city and
+  country.
+- Store this as structured profile data (a preferences table or JSON
+  column linked to the user) so it can be reused every time a new story is
+  generated, and can be edited later from a profile/settings page.
+
+TOPIC & TIMELINE SELECTION
+- Let users browse a visual timeline of historical periods/topics (Ancient
+  Civilizations, Middle Ages, Age of Exploration, Revolutions, Modern
+  History, etc.), organized by "ocean depth" per the concept above.
+- Also propose a suggested path based on the user's age or school grade —
+  loosely aligned to what's typically taught at that grade level (e.g.
+  ancient civilizations around middle school, world wars around high
+  school) — while still letting the user pick anything freely if they want.
+- Each topic should list a handful of core historical facts/events as the
+  factual backbone the AI story will be built from.
+
+AI STORY GENERATION
+- On the server side (never expose API keys to the browser), call the
+  Claude API to generate a short, engaging story that:
+  - Accurately covers the core facts for the selected historical topic.
+  - Weaves in the user's stored interests as characters, settings, or fun
+    comparisons (e.g. framing a historical journey like their favorite
+    video game's structure, or comparing a historical figure's courage to
+    their favorite sports moment).
+  - Matches reading level and tone to the user's age/mode (simpler
+    vocabulary and shorter sentences for younger users; richer language
+    for teens/adults) — keep it fun and conversational either way, never
+    textbook-dry.
+  - Ends with a distinct "Fun Facts" section — 3-5 short, surprising or
+    funny true facts related to the topic, presented separately from the
+    main story.
+- Cache each generated story per user+topic pair in the database so
+  revisiting a topic doesn't require regenerating it (and doesn't re-spend
+  API cost), but offer a "generate a new version" option if the user wants
+  a fresh take.
+
+AUDIO NARRATION (ACCESSIBILITY)
+- Add a "Listen" button on every story and fun-facts section that uses the
+  browser's built-in text-to-speech (Web Speech API) to read the content
+  aloud — no paid API required. Include play/pause and a speed control.
+- Make sure this works well on mobile browsers, and gracefully hide/disable
+  the control on browsers that don't support the Web Speech API.
+
+PROGRESS TRACKING
+- Every time a user finishes a story (reads or listens to completion),
+  record a progress entry (user, topic, completed timestamp).
+- Show an overall progress bar/meter (e.g. "12 of 40 eras explored") on the
+  homepage or profile, plus a simple visual breakdown by era/category so
+  users can see what they've covered vs. what's left.
+- Consider small badges or milestones (e.g. "Ancient Civilizations
+  Explorer") for completing a full category, to keep motivation up without
+  turning it into pressure.
+
+RETURNING-USER RECAP & REMINDERS
+- When a signed-in user returns to the app, check what they completed
+  recently (e.g. last 7-14 days) and show a friendly "Welcome back! Last
+  time you dove into..." recap panel summarizing recent topics, with a
+  quick link to revisit or take a mini quiz on them.
+- Also let users opt in (from settings) to a periodic recap email
+  summarizing what they've learned recently and suggesting what to explore
+  next — sent via the same email service used for password resets.
+
+DATABASE
+- Use Postgres (Replit's built-in database) with tables roughly like:
+  users (id, email, password_hash, display_name, age/mode, grade_level,
+  created_at, last_login_at), user_preferences (user_id, interests as
+  structured/JSON data), topics (id, era_name, category, depth_level,
+  grade_range, core_facts), stories (id, user_id, topic_id, story_text,
+  fun_facts, generated_at), progress (id, user_id, topic_id, completed_at),
+  and password_reset_tokens (id, user_id, token, expires_at).
+- Because data lives in a real database (not local storage), the same
+  account and progress should be accessible from any device the user logs
+  into — phone, tablet, or computer.
+
+TESTING CHECKLIST
+- Sign up, log out, log back in, and confirm profile/preferences persist.
+- Trigger a password reset and confirm the emailed link works end-to-end.
+- Generate a story for a topic, confirm it references the user's stored
+  interests naturally, and confirm the Fun Facts section is present.
+- Test the "Listen" (text-to-speech) button on both desktop and mobile
+  browsers.
+- Complete a few topics and confirm the progress bar updates correctly.
+- Log in from a second device/browser and confirm the same account shows
+  the same progress and story history.
+- Check the full app on a small mobile screen width for layout issues.
