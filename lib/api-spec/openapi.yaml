@@ -3,20 +3,32 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: TimeDive API — history learning through personalized AI stories
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: users
+    description: User profile and preferences
+  - name: topics
+    description: Historical topics and timeline
+  - name: stories
+    description: AI-generated personalized stories
+  - name: progress
+    description: User progress and badges
+  - name: dashboard
+    description: Dashboard summary data
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,376 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Email already in use
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Log in to an account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Log out of current session
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get currently authenticated user
+      responses:
+        "200":
+          description: Authenticated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUser"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      tags: [auth]
+      summary: Request a password reset email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForgotPasswordInput"
+      responses:
+        "200":
+          description: Reset email sent (always 200 to prevent enumeration)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/reset-password:
+    post:
+      operationId: resetPassword
+      tags: [auth]
+      summary: Reset password with token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordInput"
+      responses:
+        "200":
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "400":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me/profile:
+    get:
+      operationId: getProfile
+      tags: [users]
+      summary: Get current user's profile
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateProfile
+      tags: [users]
+      summary: Update current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdate"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /users/me/preferences:
+    get:
+      operationId: getPreferences
+      tags: [users]
+      summary: Get current user's interest preferences
+      responses:
+        "200":
+          description: User preferences
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+    put:
+      operationId: updatePreferences
+      tags: [users]
+      summary: Update current user's interest preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PreferencesUpdate"
+      responses:
+        "200":
+          description: Updated preferences
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPreferences"
+
+  /topics:
+    get:
+      operationId: listTopics
+      tags: [topics]
+      summary: List all historical topics organized by era and depth
+      responses:
+        "200":
+          description: List of topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+
+  /topics/suggested:
+    get:
+      operationId: getSuggestedTopics
+      tags: [topics]
+      summary: Get topics suggested for the current user based on their grade/age
+      responses:
+        "200":
+          description: Suggested topics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Topic"
+
+  /topics/{id}:
+    get:
+      operationId: getTopic
+      tags: [topics]
+      summary: Get a single topic with core facts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Topic detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TopicDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stories/{topicId}:
+    get:
+      operationId: getStory
+      tags: [stories]
+      summary: Get cached story for the current user and topic
+      parameters:
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Story
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+        "404":
+          description: Story not yet generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /stories/{topicId}/generate:
+    post:
+      operationId: generateStory
+      tags: [stories]
+      summary: Generate (or regenerate) a personalized story for a topic
+      parameters:
+        - name: topicId
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateStoryInput"
+      responses:
+        "200":
+          description: Generated story
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Story"
+        "404":
+          description: Topic not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /progress:
+    get:
+      operationId: getProgress
+      tags: [progress]
+      summary: Get the current user's overall progress summary
+      responses:
+        "200":
+          description: Progress summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProgressSummary"
+
+  /progress/complete:
+    post:
+      operationId: completeTopic
+      tags: [progress]
+      summary: Mark a topic as completed
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteTopicInput"
+      responses:
+        "200":
+          description: Completion recorded, with any new badges
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompletionResult"
+
+  /progress/badges:
+    get:
+      operationId: getBadges
+      tags: [progress]
+      summary: Get all badges the current user has earned
+      responses:
+        "200":
+          description: List of earned badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Badge"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get welcome-back dashboard data including recent activity and suggestions
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +416,355 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    # Auth schemas
+    RegisterInput:
+      type: object
+      required: [email, password, displayName]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        displayName:
+          type: string
+          minLength: 1
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    ForgotPasswordInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+
+    ResetPasswordInput:
+      type: object
+      required: [token, password]
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+          minLength: 8
+
+    AuthUser:
+      type: object
+      required: [id, email, displayName, onboardingComplete]
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        displayName:
+          type: string
+        onboardingComplete:
+          type: boolean
+        ageMode:
+          type: ["string", "null"]
+          enum: [kid, teen, adult, null]
+        gradeLevel:
+          type: ["integer", "null"]
+
+    # User profile schemas
+    UserProfile:
+      type: object
+      required: [id, email, displayName, onboardingComplete, createdAt]
+      properties:
+        id:
+          type: number
+        email:
+          type: string
+        displayName:
+          type: string
+        ageMode:
+          type: ["string", "null"]
+          enum: [kid, teen, adult, null]
+        age:
+          type: ["integer", "null"]
+        gradeLevel:
+          type: ["integer", "null"]
+        onboardingComplete:
+          type: boolean
+        recapEmailOptIn:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        lastLoginAt:
+          type: ["string", "null"]
+          format: date-time
+
+    ProfileUpdate:
+      type: object
+      properties:
+        displayName:
+          type: string
+        ageMode:
+          type: string
+          enum: [kid, teen, adult]
+        age:
+          type: ["integer", "null"]
+        gradeLevel:
+          type: ["integer", "null"]
+        onboardingComplete:
+          type: boolean
+        recapEmailOptIn:
+          type: boolean
+
+    UserPreferences:
+      type: object
+      required: [userId]
+      properties:
+        userId:
+          type: number
+        sports:
+          type: array
+          items:
+            type: string
+        videoGames:
+          type: array
+          items:
+            type: string
+        movieGenres:
+          type: array
+          items:
+            type: string
+        hobbies:
+          type: array
+          items:
+            type: string
+        books:
+          type: array
+          items:
+            type: string
+        city:
+          type: ["string", "null"]
+        country:
+          type: ["string", "null"]
+
+    PreferencesUpdate:
+      type: object
+      properties:
+        sports:
+          type: array
+          items:
+            type: string
+        videoGames:
+          type: array
+          items:
+            type: string
+        movieGenres:
+          type: array
+          items:
+            type: string
+        hobbies:
+          type: array
+          items:
+            type: string
+        books:
+          type: array
+          items:
+            type: string
+        city:
+          type: ["string", "null"]
+        country:
+          type: ["string", "null"]
+
+    # Topic schemas
+    Topic:
+      type: object
+      required: [id, eraName, category, depthLevel, description]
+      properties:
+        id:
+          type: number
+        eraName:
+          type: string
+        category:
+          type: string
+        depthLevel:
+          type: number
+          description: "1=shallow/recent, 10=deep/ancient"
+        description:
+          type: string
+        gradeRangeMin:
+          type: ["integer", "null"]
+        gradeRangeMax:
+          type: ["integer", "null"]
+        isCompleted:
+          type: boolean
+          description: "Whether the current user has completed this topic"
+
+    TopicDetail:
+      type: object
+      required: [id, eraName, category, depthLevel, description, coreFacts]
+      properties:
+        id:
+          type: number
+        eraName:
+          type: string
+        category:
+          type: string
+        depthLevel:
+          type: number
+        description:
+          type: string
+        coreFacts:
+          type: array
+          items:
+            type: string
+        gradeRangeMin:
+          type: ["integer", "null"]
+        gradeRangeMax:
+          type: ["integer", "null"]
+        isCompleted:
+          type: boolean
+        hasStory:
+          type: boolean
+
+    # Story schemas
+    Story:
+      type: object
+      required: [id, topicId, storyText, funFacts, generatedAt]
+      properties:
+        id:
+          type: number
+        topicId:
+          type: number
+        storyText:
+          type: string
+        funFacts:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+
+    GenerateStoryInput:
+      type: object
+      properties:
+        forceRegenerate:
+          type: boolean
+
+    # Progress schemas
+    ProgressSummary:
+      type: object
+      required: [totalTopics, completedTopics, completedByCategory, recentCompletions]
+      properties:
+        totalTopics:
+          type: number
+        completedTopics:
+          type: number
+        completedByCategory:
+          type: array
+          items:
+            $ref: "#/components/schemas/CategoryProgress"
+        recentCompletions:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentCompletion"
+
+    CategoryProgress:
+      type: object
+      required: [category, total, completed]
+      properties:
+        category:
+          type: string
+        total:
+          type: number
+        completed:
+          type: number
+
+    RecentCompletion:
+      type: object
+      required: [topicId, eraName, completedAt]
+      properties:
+        topicId:
+          type: number
+        eraName:
+          type: string
+        completedAt:
+          type: string
+          format: date-time
+
+    CompleteTopicInput:
+      type: object
+      required: [topicId]
+      properties:
+        topicId:
+          type: number
+
+    CompletionResult:
+      type: object
+      required: [newBadges, totalCompleted]
+      properties:
+        newBadges:
+          type: array
+          items:
+            $ref: "#/components/schemas/Badge"
+        totalCompleted:
+          type: number
+
+    Badge:
+      type: object
+      required: [id, name, description, category, icon, earnedAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        icon:
+          type: string
+        earnedAt:
+          type: string
+          format: date-time
+
+    # Dashboard schema
+    DashboardSummary:
+      type: object
+      required: [totalTopics, completedTopics, recentTopics, suggestedNext]
+      properties:
+        totalTopics:
+          type: number
+        completedTopics:
+          type: number
+        recentTopics:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecentCompletion"
+        suggestedNext:
+          type: array
+          items:
+            $ref: "#/components/schemas/Topic"
+        badgeCount:
+          type: number
+        lastLoginAt:
+          type: ["string", "null"]
+          format: date-time
