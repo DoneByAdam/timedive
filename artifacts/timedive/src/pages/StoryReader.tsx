@@ -1,5 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useGetStory, useGenerateStory, useCompleteTopic, getGetProgressQueryKey, getGetDashboardSummaryQueryKey, getGetStoryQueryKey } from '@workspace/api-client-react';
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*\*(.+?)\*\*\*/g, '$1')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/___(.+?)___/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    .replace(/_([^_\n]+)_/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .trim();
+}
 import { useRoute, Link, useLocation } from 'wouter';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -91,7 +105,16 @@ export default function StoryReader() {
 
   if (!story) return null;
 
-  const contentToRead = `${story.storyText}\n\nFun Facts: ${story.funFacts}`;
+  // Strip markdown so asterisks and other formatting symbols don't appear in text or get read aloud
+  const cleanStory = stripMarkdown(story.storyText);
+  const cleanFacts = stripMarkdown(story.funFacts);
+  const contentToRead = `${cleanStory}\n\n${cleanFacts}`;
+
+  // Parse fun facts into a bullet list
+  const factLines = cleanFacts
+    .split('\n')
+    .filter(l => l.trim().startsWith('•'))
+    .map(l => l.replace(/^•\s*/, '').trim());
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
@@ -105,16 +128,27 @@ export default function StoryReader() {
 
         <article className="prose prose-invert prose-lg md:prose-xl max-w-none mb-12 prose-p:leading-relaxed prose-headings:text-primary">
           <div className="whitespace-pre-wrap text-foreground/90 font-serif">
-            {story.storyText}
+            {cleanStory}
           </div>
         </article>
 
         <Card className="mb-12 bg-accent/10 border-accent/20">
           <CardContent className="p-6">
             <h3 className="text-2xl font-bold text-accent mb-4 flex items-center gap-2">
-              <Sparkles /> Fun Facts
+              <Sparkles /> Fun Facts 🎉
             </h3>
-            <p className="text-lg leading-relaxed">{story.funFacts}</p>
+            {factLines.length > 0 ? (
+              <ul className="space-y-2">
+                {factLines.map((f, i) => (
+                  <li key={i} className="flex gap-2 text-lg leading-relaxed">
+                    <span className="text-accent font-bold shrink-0">•</span>
+                    <span>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-lg leading-relaxed">{cleanFacts}</p>
+            )}
           </CardContent>
         </Card>
 

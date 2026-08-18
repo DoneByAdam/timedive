@@ -105,19 +105,24 @@ ${readingLevel}
 ${interestsStr}
 ${locationStr}
 
-IMPORTANT: Naturally weave the user's interests into the story as comparisons, character analogies, or modern parallels. Make it feel personally written for them.
+${interestsStr ? "Naturally weave the user's interests into the story as comparisons, character analogies, or modern parallels. Make it feel personally written for them." : ""}
 
-After the main story, add a section titled "Fun Facts 🎉" with exactly 3-5 short, surprising or funny true facts about this topic. Format them as a bulleted list.
+FORMATTING RULES (strictly follow):
+- Write in plain prose paragraphs only.
+- Do NOT use any markdown — no asterisks (* or **), no underscores (_ or __), no pound signs (#), no backticks.
+- Do not bold or italicise any words. Just clean, readable sentences.
+
+After the main story, add a section titled exactly "Fun Facts 🎉" with exactly 3-5 short, surprising or funny TRUE facts as a bulleted list using •.
 
 Format your response as:
-[main story text here]
+[story paragraphs — plain text, no markdown]
 
 Fun Facts 🎉
 • [fact 1]
 • [fact 2]
 • [fact 3]
-(optional • [fact 4])
-(optional • [fact 5])`;
+• [fact 4 optional]
+• [fact 5 optional]`;
 
   const apiKey = process.env.ANTHROPIC_API_KEY ?? process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
   const baseUrl = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
@@ -201,7 +206,7 @@ Fun Facts 🎉
 // POST /stories/custom — generate a story for any free-text historical topic
 router.post("/stories/custom", requireAuth, async (req, res): Promise<void> => {
   const userId = req.session!.userId as number;
-  const { customTopic } = req.body ?? {};
+  const { customTopic, age: bodyAge, hobbies: bodyHobbies } = req.body ?? {};
 
   if (!customTopic || typeof customTopic !== "string" || customTopic.trim().length < 2) {
     res.status(400).json({ error: "customTopic is required (min 2 characters)" });
@@ -211,50 +216,62 @@ router.post("/stories/custom", requireAuth, async (req, res): Promise<void> => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
   const [prefs] = await db.select().from(userPreferencesTable).where(eq(userPreferencesTable.userId, userId)).limit(1);
 
-  const ageMode = user?.ageMode ?? "adult";
-  const ageNum = user?.age;
-  const ageStr = ageNum ? `The user is ${ageNum} years old.` : "";
+  // Use request-supplied age/hobbies first; fall back to stored profile
+  const ageNum: number | undefined = (typeof bodyAge === "number" && bodyAge > 0) ? bodyAge : (user?.age ?? undefined);
+  const ageMode = ageNum
+    ? (ageNum <= 12 ? "kid" : ageNum <= 17 ? "teen" : "adult")
+    : (user?.ageMode ?? "adult");
 
-  const interests: string[] = [
+  const ageStr = ageNum ? `The reader is ${ageNum} years old.` : "";
+
+  // Merge body hobbies with stored preferences; body hobbies take priority
+  const storedInterests: string[] = [
     ...(prefs?.sports ?? []),
     ...(prefs?.videoGames ?? []),
     ...(prefs?.movieGenres ?? []),
-    ...(prefs?.hobbies ?? []).filter(h => !h.startsWith("History interest:")),
+    ...(prefs?.hobbies ?? []).filter((h: string) => !h.startsWith("History interest:")),
     ...(prefs?.books ?? []),
   ];
+  const interests: string[] = Array.isArray(bodyHobbies) && bodyHobbies.length > 0
+    ? bodyHobbies
+    : storedInterests;
+
   const interestsStr = interests.length > 0
-    ? `The user's hobbies and interests include: ${interests.join(", ")}.`
+    ? `The reader's hobbies and interests: ${interests.join(", ")}.`
     : "";
 
   const readingLevel = ageMode === "kid"
-    ? "Write for a child: very simple vocabulary, short sentences, lots of fun comparisons and vivid imagery."
+    ? "Write for a child: very simple vocabulary, short sentences, vivid imagery and fun comparisons to everyday things."
     : ageMode === "teen"
-    ? "Write for a teenager: engaging and conversational, not too simple but not overly academic."
+    ? "Write for a teenager: engaging and conversational, not too simple but not overly academic. Use relatable references."
     : "Write for an adult: rich language, nuanced analysis, still fun and conversational — never textbook-dry.";
 
   const prompt = `You are TimeDive, an expert history storyteller who makes the past vivid and personal.
 
-The user wants to learn about: "${customTopic.trim()}"
+The reader wants to learn about: "${customTopic.trim()}"
 
 Write a short, engaging, historically accurate story (350–550 words) about this topic.
 
-IMPORTANT ACCURACY REQUIREMENTS:
-- Ground every claim in documented historical facts from reputable sources (encyclopedias, academic consensus, primary sources).
-- If the topic is a specific person, include real biographical details: dates, places, key achievements.
-- If the topic is an era or event, include verified dates, causes, key figures, and lasting consequences.
-- Never invent facts — if something is uncertain, say "historians believe" or "according to records".
-- Draw from scholarship like Encyclopaedia Britannica, the Oxford Dictionary of National Biography, and peer-reviewed history.
+ACCURACY REQUIREMENTS:
+- Every claim must be grounded in documented historical facts (encyclopedias, academic consensus, primary sources).
+- For a specific person: include real biographical details — dates, places, key achievements.
+- For an era or event: include verified dates, causes, key figures, lasting consequences.
+- Never invent facts. If something is uncertain, say "historians believe" or "according to records".
 
 ${readingLevel}
 ${ageStr}
 ${interestsStr}
+${interests.length > 0 ? "Naturally weave the reader's interests into the story as comparisons, character analogies, or modern parallels — make it feel personally written for them." : ""}
 
-${interests.length > 0 ? "Naturally weave the user's interests into the story as comparisons, character analogies, or modern parallels — make it feel personally written for them." : ""}
+FORMATTING RULES (strictly follow):
+- Write in plain prose paragraphs only.
+- Do NOT use any markdown formatting — no asterisks (* or **), no underscores (_ or __), no pound signs (#), no backticks, no hyphens as bullets in the main story.
+- Do not bold or italicise any words. Just write clean sentences.
 
-After the main story, add a section titled "Fun Facts 🎉" with exactly 3–5 short, surprising, TRUE facts about this topic. Format them as a bulleted list starting with •.
+After the main story, add a section titled exactly "Fun Facts 🎉" followed by 3–5 short surprising TRUE facts as a bulleted list using the bullet character •.
 
-Format your response as:
-[main story text here]
+Your full response format:
+[story paragraphs here — plain text, no markdown]
 
 Fun Facts 🎉
 • [fact 1]

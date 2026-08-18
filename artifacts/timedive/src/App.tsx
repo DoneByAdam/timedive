@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
@@ -37,12 +37,12 @@ function ProtectedRoute({ component: Component }: { component: any }) {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Use effect for navigation to avoid calling setLocation during render
-  if (!isLoading && !user) {
-    // Synchronous redirect is safe here because wouter batches these
-    setLocation('/login');
-    return null;
-  }
+  // Must be in useEffect — calling setLocation during render triggers a React warning
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation('/login');
+    }
+  }, [isLoading, user, setLocation]);
 
   if (isLoading) {
     return (
@@ -54,6 +54,8 @@ function ProtectedRoute({ component: Component }: { component: any }) {
       </div>
     );
   }
+
+  if (!user) return null;
 
   return <Component />;
 }
