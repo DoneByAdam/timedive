@@ -4,6 +4,7 @@ import pinoHttp from "pino-http";
 import session from "express-session";
 import router from "./routes";
 import { logger } from "./lib/logger";
+import { verifyMobileToken } from "./lib/mobileToken";
 
 const app: Express = express();
 // Trust the Replit reverse proxy so secure cookies and X-Forwarded-* headers work correctly
@@ -49,6 +50,19 @@ app.use(
     },
   })
 );
+
+// Mobile clients authenticate with a signed bearer token instead of cookies.
+// When a valid token is present and no session exists yet, hydrate the session.
+app.use((req, _res, next) => {
+  if (!req.session?.userId) {
+    const auth = req.headers.authorization;
+    if (auth?.startsWith("Bearer ")) {
+      const userId = verifyMobileToken(auth.slice(7));
+      if (userId) req.session!.userId = userId;
+    }
+  }
+  next();
+});
 
 app.use("/api", router);
 

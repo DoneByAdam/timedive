@@ -16,4 +16,6 @@ export interface AuthUser {
   ageMode?: AuthUserAgeMode;
   /** @nullable */
   gradeLevel?: number | null;
+  /** Bearer token for mobile clients (returned on login/register) */
+  token?: string;
 }

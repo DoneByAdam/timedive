@@ -61,6 +61,8 @@ export interface AuthUser {
   ageMode?: AuthUserAgeMode;
   /** @nullable */
   gradeLevel?: number | null;
+  /** Bearer token for mobile clients (returned on login/register) */
+  token?: string;
 }
 
 /**
@@ -173,6 +175,19 @@ export interface Story {
   storyText: string;
   funFacts: string;
   generatedAt: string;
+}
+
+export interface CustomStoryInput {
+  /** @minLength 2 */
+  customTopic: string;
+  age?: number;
+  hobbies?: string[];
+}
+
+export interface CustomStory {
+  customTopic: string;
+  storyText: string;
+  funFacts: string;
 }
 
 export interface GenerateStoryInput {

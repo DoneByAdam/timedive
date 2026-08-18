@@ -12,6 +12,8 @@ export * from './badge';
 export * from './categoryProgress';
 export * from './completeTopicInput';
 export * from './completionResult';
+export * from './customStory';
+export * from './customStoryInput';
 export * from './dashboardSummary';
 export * from './errorResponse';
 export * from './forgotPasswordInput';

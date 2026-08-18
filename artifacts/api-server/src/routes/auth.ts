@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { db, usersTable, userPreferencesTable, passwordResetTokensTable } from "@workspace/db";
 import { logger } from "../lib/logger";
 import { requireAuth } from "../middlewares/requireAuth";
+import { createMobileToken } from "../lib/mobileToken";
 
 const router: IRouter = Router();
 
@@ -43,6 +44,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     onboardingComplete: user.onboardingComplete,
     ageMode: user.ageMode,
     gradeLevel: user.gradeLevel,
+    token: createMobileToken(user.id),
   });
 });
 
@@ -74,6 +76,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
     onboardingComplete: user.onboardingComplete,
     ageMode: user.ageMode,
     gradeLevel: user.gradeLevel,
+    token: createMobileToken(user.id),
   });
 });
 

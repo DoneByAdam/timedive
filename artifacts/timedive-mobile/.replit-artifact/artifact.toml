@@ -1,0 +1,24 @@
+kind = "mobile"
+previewPath = "/mobile/"
+title = "TimeDive Mobile"
+description = "Native mobile companion app for TimeDive, the personalized AI history storytelling experience. Lets users log in, complete onboarding (age + hobbies + topic), generate custom stories, browse the topic timeline, and read stories with text-to-speech narration — all backed by the existing TimeDive API server."
+version = "1.0.0"
+id = "artifacts/timedive-mobile"
+router = "expo-domain"
+
+[[services]]
+name = "expo"
+ensurePreviewReachable = "/status"
+paths = [ "/mobile/" ]
+localPort = 19194
+
+[services.development]
+run = "pnpm --filter @workspace/timedive-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/timedive-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/timedive-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "19194"
+BASE_PATH = "/mobile/"

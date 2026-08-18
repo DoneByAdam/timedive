@@ -346,6 +346,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /stories/custom:
+    post:
+      operationId: generateCustomStory
+      tags: [stories]
+      summary: Generate a one-off personalized story about any custom topic
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CustomStoryInput"
+      responses:
+        "200":
+          description: Generated custom story
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomStory"
+        "503":
+          description: Story generation unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /progress:
     get:
       operationId: getProgress
@@ -489,6 +514,9 @@ components:
           enum: [kid, teen, adult, null]
         gradeLevel:
           type: ["integer", "null"]
+        token:
+          type: string
+          description: Bearer token for mobile clients (returned on login/register)
 
     # User profile schemas
     UserProfile:
@@ -662,6 +690,31 @@ components:
         generatedAt:
           type: string
           format: date-time
+
+    CustomStoryInput:
+      type: object
+      required: [customTopic]
+      properties:
+        customTopic:
+          type: string
+          minLength: 2
+        age:
+          type: number
+        hobbies:
+          type: array
+          items:
+            type: string
+
+    CustomStory:
+      type: object
+      required: [customTopic, storyText, funFacts]
+      properties:
+        customTopic:
+          type: string
+        storyText:
+          type: string
+        funFacts:
+          type: string
 
     GenerateStoryInput:
       type: object

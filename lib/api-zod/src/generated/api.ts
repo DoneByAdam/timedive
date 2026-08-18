@@ -36,7 +36,8 @@ export const RegisterResponse = zod.object({
   "displayName": zod.string(),
   "onboardingComplete": zod.boolean(),
   "ageMode": zod.union([zod.literal('kid'),zod.literal('teen'),zod.literal('adult'),zod.literal(null)]).nullish(),
-  "gradeLevel": zod.number().int().nullish()
+  "gradeLevel": zod.number().int().nullish(),
+  "token": zod.string().optional().describe('Bearer token for mobile clients (returned on login\/register)')
 })
 
 
@@ -54,7 +55,8 @@ export const LoginResponse = zod.object({
   "displayName": zod.string(),
   "onboardingComplete": zod.boolean(),
   "ageMode": zod.union([zod.literal('kid'),zod.literal('teen'),zod.literal('adult'),zod.literal(null)]).nullish(),
-  "gradeLevel": zod.number().int().nullish()
+  "gradeLevel": zod.number().int().nullish(),
+  "token": zod.string().optional().describe('Bearer token for mobile clients (returned on login\/register)')
 })
 
 
@@ -75,7 +77,8 @@ export const GetMeResponse = zod.object({
   "displayName": zod.string(),
   "onboardingComplete": zod.boolean(),
   "ageMode": zod.union([zod.literal('kid'),zod.literal('teen'),zod.literal('adult'),zod.literal(null)]).nullish(),
-  "gradeLevel": zod.number().int().nullish()
+  "gradeLevel": zod.number().int().nullish(),
+  "token": zod.string().optional().describe('Bearer token for mobile clients (returned on login\/register)')
 })
 
 
@@ -277,6 +280,26 @@ export const GenerateStoryResponse = zod.object({
   "storyText": zod.string(),
   "funFacts": zod.string(),
   "generatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Generate a one-off personalized story about any custom topic
+ */
+export const generateCustomStoryBodyCustomTopicMin = 2;
+
+
+
+export const GenerateCustomStoryBody = zod.object({
+  "customTopic": zod.string().min(generateCustomStoryBodyCustomTopicMin),
+  "age": zod.number().optional(),
+  "hobbies": zod.array(zod.string()).optional()
+})
+
+export const GenerateCustomStoryResponse = zod.object({
+  "customTopic": zod.string(),
+  "storyText": zod.string(),
+  "funFacts": zod.string()
 })
 
 

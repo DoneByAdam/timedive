@@ -24,6 +24,8 @@ import type {
   Badge,
   CompleteTopicInput,
   CompletionResult,
+  CustomStory,
+  CustomStoryInput,
   DashboardSummary,
   ErrorResponse,
   ForgotPasswordInput,
@@ -1253,6 +1255,77 @@ export const useGenerateStory = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getGenerateStoryMutationOptions(options));
+    }
+
+export const getGenerateCustomStoryUrl = () => {
+
+
+
+
+  return `/api/stories/custom`
+}
+
+/**
+ * @summary Generate a one-off personalized story about any custom topic
+ */
+export const generateCustomStory = async (customStoryInput: CustomStoryInput, options?: Parameters<typeof customFetch>[1]): Promise<CustomStory> => {
+
+  return customFetch<CustomStory>(getGenerateCustomStoryUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(customStoryInput)
+  }
+);}
+
+
+
+
+
+export const getGenerateCustomStoryMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateCustomStory>>, TError,{data: BodyType<CustomStoryInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof generateCustomStory>>, TError,{data: BodyType<CustomStoryInput>}, TContext> => {
+
+const mutationKey = ['generateCustomStory'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof generateCustomStory>>, {data: BodyType<CustomStoryInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  generateCustomStory(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type GenerateCustomStoryMutationResult = NonNullable<Awaited<ReturnType<typeof generateCustomStory>>>
+    export type GenerateCustomStoryMutationBody = BodyType<CustomStoryInput>
+    export type GenerateCustomStoryMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Generate a one-off personalized story about any custom topic
+ */
+export const useGenerateCustomStory = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof generateCustomStory>>, TError,{data: BodyType<CustomStoryInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof generateCustomStory>>,
+        TError,
+        {data: BodyType<CustomStoryInput>},
+        TContext
+      > => {
+      return useMutation(getGenerateCustomStoryMutationOptions(options));
     }
 
 export const getGetProgressUrl = () => {

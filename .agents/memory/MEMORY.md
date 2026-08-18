@@ -1,2 +1,3 @@
 - [Auth cookie fix — Vite proxy required](auth-vite-proxy.md) — without a Vite dev proxy for /api, session cookies never persist across requests in dev mode.
 - [Codegen post-processing — zod.int()](codegen-zod-compat.md) — Orval v8 emits zod.int() (Zod v4 syntax); workspace uses Zod v3; must sed-replace after every codegen run.
+- [Mobile auth bridge](mobile-auth-bridge.md) — API stays cookie-session; login/register also return an HMAC bearer token that middleware hydrates into the session for Expo clients.
