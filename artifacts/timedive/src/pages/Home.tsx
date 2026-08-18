@@ -12,7 +12,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <img src="/logo.jpeg" alt="TimeDive" className="h-16 w-16 rounded-xl object-cover animate-pulse" />
+        <img src="/logo.png" alt="TimeDive" className="h-16 w-16 rounded-xl object-cover animate-pulse" />
       </div>
     );
   }
@@ -45,7 +45,7 @@ export default function Home() {
         <div className="mx-auto mb-8 flex items-center justify-center">
           <div className="relative">
             <div className="absolute inset-0 rounded-3xl blur-2xl opacity-40 bg-blue-400 scale-110" />
-            <img src="/logo.jpeg" alt="TimeDive" className="relative h-28 w-28 rounded-3xl object-cover shadow-2xl" />
+            <img src="/logo.png" alt="TimeDive" className="relative h-28 w-28 rounded-3xl object-cover shadow-2xl" />
           </div>
         </div>
         <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6 drop-shadow-lg">
@@ -74,7 +74,7 @@ function Dashboard() {
   if (isLoading) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <img src="/logo.jpeg" alt="TimeDive" className="h-16 w-16 rounded-xl object-cover animate-pulse" />
+        <img src="/logo.png" alt="TimeDive" className="h-16 w-16 rounded-xl object-cover animate-pulse" />
       </div>
     );
   }

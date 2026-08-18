@@ -34,7 +34,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href={user ? "/timeline" : "/"} className="flex items-center gap-3 group">
-          <img src="/logo.jpeg" alt="TimeDive" className="h-10 w-10 rounded-xl object-cover group-hover:scale-110 transition-transform" />
+          <img src="/logo.png" alt="TimeDive" className="h-10 w-10 rounded-xl object-cover group-hover:scale-110 transition-transform" />
           <span className="text-2xl font-bold tracking-tight text-primary font-brand">TimeDive</span>
         </Link>
         
