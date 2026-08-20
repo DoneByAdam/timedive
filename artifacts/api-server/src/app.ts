@@ -1,3 +1,6 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { existsSync } from "node:fs";
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
@@ -5,6 +8,8 @@ import session from "express-session";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { verifyMobileToken } from "./lib/mobileToken";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app: Express = express();
 // Trust the Replit reverse proxy so secure cookies and X-Forwarded-* headers work correctly
@@ -65,5 +70,15 @@ app.use((req, _res, next) => {
 });
 
 app.use("/api", router);
+
+// Serve the built frontend (artifacts/timedive/dist/public) when it's present
+// alongside this bundle, so a single service can host both API and web app.
+const clientDist = path.resolve(__dirname, "../../timedive/dist/public");
+if (existsSync(clientDist)) {
+  app.use(express.static(clientDist));
+  app.get(/^(?!\/api).*/, (_req, res) => {
+    res.sendFile(path.join(clientDist, "index.html"));
+  });
+}
 
 export default app;
