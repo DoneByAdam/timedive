@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ReadAloud } from '@/components/ReadAloud';
+import { ShareStoryButton } from '@/components/ShareStoryButton';
 import { useAuth } from '@/hooks/use-auth';
 import { stripMarkdown } from '@/lib/strip-markdown';
 import { Sparkles, ArrowLeft, RefreshCw, BookOpen, Plus, X } from 'lucide-react';
@@ -15,7 +16,7 @@ async function generateCustomStory(payload: {
   customTopic: string;
   age?: number;
   hobbies?: string[];
-}): Promise<{ storyText: string; funFacts: string }> {
+}): Promise<{ id: number; storyText: string; funFacts: string }> {
   const res = await fetch(`${BASE}/api/stories/custom`, {
     method: 'POST',
     credentials: 'include',
@@ -52,7 +53,7 @@ function parseFunFacts(funFacts: string): string[] {
 type GenState =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'done'; story: string; funFacts: string; topic: string }
+  | { status: 'done'; id: number; story: string; funFacts: string; topic: string }
   | { status: 'error'; message: string };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -110,7 +111,7 @@ export default function StoryGenerator() {
       const cleanStory = stripMarkdown(result.storyText);
       const cleanFacts = stripMarkdown(result.funFacts);
 
-      setGenState({ status: 'done', story: cleanStory, funFacts: cleanFacts, topic: t });
+      setGenState({ status: 'done', id: result.id, story: cleanStory, funFacts: cleanFacts, topic: t });
       // Scroll to result
       setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     } catch (err: any) {
@@ -323,15 +324,18 @@ export default function StoryGenerator() {
                     </CardTitle>
                     <CardDescription className="mt-1">AI-generated · historically grounded</CardDescription>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="gap-1.5 text-muted-foreground shrink-0"
-                    onClick={() => handleGenerate({ overrideTopic: genState.topic })}
-                  >
-                    <RefreshCw size={14} />
-                    Regenerate
-                  </Button>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <ShareStoryButton storyId={genState.id} />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5 text-muted-foreground"
+                      onClick={() => handleGenerate({ overrideTopic: genState.topic })}
+                    >
+                      <RefreshCw size={14} />
+                      Regenerate
+                    </Button>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="space-y-5">

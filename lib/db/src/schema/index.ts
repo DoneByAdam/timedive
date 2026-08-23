@@ -5,3 +5,4 @@ export * from "./stories";
 export * from "./progress";
 export * from "./badges";
 export * from "./passwordResetTokens";
+export * from "./contactMessages";

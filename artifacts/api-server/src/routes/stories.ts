@@ -1,10 +1,44 @@
 import { Router, type IRouter } from "express";
+import crypto from "crypto";
 import { and, eq } from "drizzle-orm";
 import { db, storiesTable, topicsTable, usersTable, userPreferencesTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/requireAuth";
 import { logger } from "../lib/logger";
 
 const router: IRouter = Router();
+
+// List every story the user has saved — from catalog topics and the free-text
+// Story Generator alike — for a "read/listen later" library view.
+router.get("/stories", requireAuth, async (req, res): Promise<void> => {
+  const userId = req.session!.userId as number;
+
+  const rows = await db.select({
+    id: storiesTable.id,
+    topicId: storiesTable.topicId,
+    customTopicTitle: storiesTable.customTopicTitle,
+    storyText: storiesTable.storyText,
+    funFacts: storiesTable.funFacts,
+    generatedAt: storiesTable.generatedAt,
+    shareToken: storiesTable.shareToken,
+    topicEraName: topicsTable.eraName,
+    topicCategory: topicsTable.category,
+  })
+    .from(storiesTable)
+    .leftJoin(topicsTable, eq(storiesTable.topicId, topicsTable.id))
+    .where(eq(storiesTable.userId, userId))
+    .orderBy(storiesTable.generatedAt);
+
+  res.json(rows.map(r => ({
+    id: r.id,
+    topicId: r.topicId,
+    title: r.topicEraName ?? r.customTopicTitle ?? "Untitled Story",
+    category: r.topicCategory ?? "Custom",
+    storyText: r.storyText,
+    funFacts: r.funFacts,
+    generatedAt: r.generatedAt,
+    isShared: !!r.shareToken,
+  })));
+});
 
 router.get("/stories/:topicId", requireAuth, async (req, res): Promise<void> => {
   const userId = req.session!.userId as number;
@@ -203,6 +237,76 @@ Fun Facts 🎉
   });
 });
 
+// Generate (or return the existing) public share link for one of the user's
+// own stories. Sharing is opt-in and per-story — nothing is public until
+// this is called.
+router.post("/stories/:id/share", requireAuth, async (req, res): Promise<void> => {
+  const userId = req.session!.userId as number;
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid story id" });
+    return;
+  }
+
+  const [story] = await db.select().from(storiesTable)
+    .where(and(eq(storiesTable.id, id), eq(storiesTable.userId, userId)))
+    .limit(1);
+  if (!story) {
+    res.status(404).json({ error: "Story not found" });
+    return;
+  }
+
+  const shareToken = story.shareToken ?? crypto.randomBytes(12).toString("hex");
+  if (!story.shareToken) {
+    await db.update(storiesTable).set({ shareToken }).where(eq(storiesTable.id, id));
+  }
+
+  res.json({ shareToken });
+});
+
+router.delete("/stories/:id/share", requireAuth, async (req, res): Promise<void> => {
+  const userId = req.session!.userId as number;
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid story id" });
+    return;
+  }
+
+  await db.update(storiesTable).set({ shareToken: null })
+    .where(and(eq(storiesTable.id, id), eq(storiesTable.userId, userId)));
+  res.json({ message: "Story is no longer shared" });
+});
+
+// Public — no auth. Anyone with the link can read a shared story.
+router.get("/public/stories/:token", async (req, res): Promise<void> => {
+  const token = Array.isArray(req.params.token) ? req.params.token[0] : req.params.token;
+
+  const [story] = await db.select({
+    storyText: storiesTable.storyText,
+    funFacts: storiesTable.funFacts,
+    topicId: storiesTable.topicId,
+    customTopicTitle: storiesTable.customTopicTitle,
+    topicEraName: topicsTable.eraName,
+  })
+    .from(storiesTable)
+    .leftJoin(topicsTable, eq(storiesTable.topicId, topicsTable.id))
+    .where(eq(storiesTable.shareToken, token))
+    .limit(1);
+
+  if (!story) {
+    res.status(404).json({ error: "This shared story doesn't exist or is no longer shared" });
+    return;
+  }
+
+  res.json({
+    title: story.topicEraName ?? story.customTopicTitle ?? "Untitled Story",
+    storyText: story.storyText,
+    funFacts: story.funFacts,
+  });
+});
+
 // POST /stories/custom — generate a story for any free-text historical topic
 router.post("/stories/custom", requireAuth, async (req, res): Promise<void> => {
   const userId = req.session!.userId as number;
@@ -322,7 +426,11 @@ Fun Facts 🎉
       funFacts = "Fun Facts 🎉\n• This topic has a rich history waiting to be explored!";
     }
 
-    res.json({ customTopic: customTopic.trim(), storyText, funFacts });
+    const [story] = await db.insert(storiesTable)
+      .values({ userId, customTopicTitle: customTopic.trim(), storyText, funFacts })
+      .returning();
+
+    res.json({ id: story.id, customTopic: customTopic.trim(), storyText, funFacts });
   } catch (err) {
     req.log.error({ err }, "Custom story generation failed");
     res.status(500).json({ error: "Story generation failed. Please try again." });

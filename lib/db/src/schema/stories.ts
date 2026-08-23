@@ -9,12 +9,15 @@ export const storiesTable = pgTable("stories", {
   userId: integer("user_id")
     .notNull()
     .references(() => usersTable.id, { onDelete: "cascade" }),
+  // Null for stories generated from a free-text topic (Story Generator) rather
+  // than a catalog topic.
   topicId: integer("topic_id")
-    .notNull()
     .references(() => topicsTable.id, { onDelete: "cascade" }),
+  customTopicTitle: text("custom_topic_title"),
   storyText: text("story_text").notNull(),
   funFacts: text("fun_facts").notNull(),
   generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
+  shareToken: text("share_token").unique(),
 });
 
 export const insertStorySchema = createInsertSchema(storiesTable).omit({ id: true, generatedAt: true });

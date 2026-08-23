@@ -2,7 +2,7 @@ import { Link, useLocation } from 'wouter';
 import { useAuth } from '@/hooks/use-auth';
 import { useLogout, getGetMeQueryKey } from '@workspace/api-client-react';
 import { Button } from './ui/button';
-import { Compass, Settings, LogOut, User, Sparkles } from 'lucide-react';
+import { Compass, Settings, LogOut, User, Sparkles, BookOpen } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAccessibility } from '@/hooks/use-accessibility';
 import {
@@ -78,6 +78,10 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/my-stories" className="flex items-center gap-2"><BookOpen size={14} /> My Stories</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/profile">Profile</Link>
                   </DropdownMenuItem>

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Submarine } from '@/components/Submarine';
 import { ReadAloud } from '@/components/ReadAloud';
+import { ShareStoryButton } from '@/components/ShareStoryButton';
 import { ArrowLeft, Sparkles, Check, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -106,11 +107,14 @@ export default function StoryReader() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-background">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <div className="flex justify-between items-center mb-8 sticky top-20 z-40 bg-background/95 backdrop-blur py-4 -mt-4 border-b border-border">
+        <div className="flex flex-wrap justify-between items-center gap-2 mb-8 sticky top-20 z-40 bg-background/95 backdrop-blur py-4 -mt-4 border-b border-border">
           <Button variant="ghost" asChild>
             <Link href={`/topics/${topicId}`}><ArrowLeft className="mr-2 h-4 w-4" /> Back</Link>
           </Button>
-          <ReadAloud text={contentToRead} />
+          <div className="flex flex-wrap items-center gap-2 justify-end">
+            <ShareStoryButton storyId={story.id} />
+            <ReadAloud text={contentToRead} />
+          </div>
         </div>
 
         <article className="prose prose-invert prose-lg md:prose-xl max-w-none mb-12 prose-p:leading-relaxed prose-headings:text-primary">

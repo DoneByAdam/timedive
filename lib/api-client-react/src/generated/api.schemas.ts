@@ -185,6 +185,7 @@ export interface CustomStoryInput {
 }
 
 export interface CustomStory {
+  id: number;
   customTopic: string;
   storyText: string;
   funFacts: string;
@@ -192,6 +193,35 @@ export interface CustomStory {
 
 export interface GenerateStoryInput {
   forceRegenerate?: boolean;
+}
+
+export interface SavedStory {
+  id: number;
+  /** @nullable */
+  topicId?: number | null;
+  title: string;
+  category: string;
+  storyText: string;
+  funFacts: string;
+  generatedAt: string;
+  isShared: boolean;
+}
+
+export interface ShareResult {
+  shareToken: string;
+}
+
+export interface PublicStory {
+  title: string;
+  storyText: string;
+  funFacts: string;
+}
+
+export interface ContactInput {
+  name: string;
+  email: string;
+  /** @minLength 5 */
+  message: string;
 }
 
 export interface CategoryProgress {

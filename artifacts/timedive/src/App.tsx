@@ -8,6 +8,7 @@ import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { Navbar } from '@/components/Navbar';
+import { Footer } from '@/components/Footer';
 
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
@@ -23,6 +24,9 @@ import Preferences from '@/pages/Preferences';
 import Progress from '@/pages/Progress';
 import Settings from '@/pages/Settings';
 import StoryGenerator from '@/pages/StoryGenerator';
+import MyStories from '@/pages/MyStories';
+import SharedStory from '@/pages/SharedStory';
+import Contact from '@/pages/Contact';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -100,11 +104,17 @@ function Router() {
             <Route path="/story-generator">
               <ProtectedRoute component={StoryGenerator} />
             </Route>
-            
+            <Route path="/my-stories">
+              <ProtectedRoute component={MyStories} />
+            </Route>
+            <Route path="/shared/:token" component={SharedStory} />
+            <Route path="/contact" component={Contact} />
+
             <Route component={NotFound} />
           </Switch>
         </RoutedErrorBoundary>
       </main>
+      <Footer />
     </div>
   );
 }
