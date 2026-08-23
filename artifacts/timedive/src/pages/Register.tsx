@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRegister, getGetMeQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, Link } from 'wouter';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Submarine } from '@/components/Submarine';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Register() {
   const [email, setEmail] = useState('');
@@ -17,14 +18,26 @@ export default function Register() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Already logged in (e.g. back button, stale link) — bounce to the dashboard
+  // instead of showing the form again.
+  useEffect(() => {
+    if (user) setLocation('/');
+  }, [user, setLocation]);
+
+  if (user) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     register.mutate(
       { data: { email, password, displayName } },
       {
-        onSuccess: (user) => {
-          // Seed the cache immediately so ProtectedRoute sees the user right away
+        onSuccess: async (user) => {
+          // Cancel any in-flight /api/auth/me (fired on page load, before the
+          // session cookie existed) so its stale 401 can't land after this and
+          // clobber the fresh user we're about to seed.
+          await queryClient.cancelQueries({ queryKey: getGetMeQueryKey() });
           queryClient.setQueryData(getGetMeQueryKey(), user);
           toast({ title: `Welcome aboard, ${user.displayName}!` });
           setLocation('/onboarding');
