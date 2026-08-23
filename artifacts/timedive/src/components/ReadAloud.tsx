@@ -48,7 +48,20 @@ export function ReadAloud({ text }: { text: string }) {
 
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    return () => { window.speechSynthesis.cancel(); };
+
+    // Android Chrome frequently reports zero voices on the first call and
+    // never fires 'voiceschanged' either — a short poll wakes it up far more
+    // reliably than either mechanism alone.
+    let attempts = 0;
+    const pollId = window.setInterval(() => {
+      attempts += 1;
+      if (window.speechSynthesis.getVoices().length > 0 || attempts >= 12) {
+        window.clearInterval(pollId);
+      }
+      loadVoices();
+    }, 250);
+
+    return () => { window.clearInterval(pollId); window.speechSynthesis.cancel(); };
   }, []);
 
   if (!supported) return null;

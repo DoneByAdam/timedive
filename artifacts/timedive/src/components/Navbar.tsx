@@ -33,12 +33,12 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href={user ? "/timeline" : "/"} className="flex items-center gap-3 group">
+        <Link href={user ? "/timeline" : "/"} className="flex items-center gap-3 group shrink-0">
           <img src="/logo.png" alt="TimeDive" className="h-10 w-10 rounded-xl object-cover group-hover:scale-110 transition-transform" />
-          <span className="text-2xl font-bold tracking-tight text-primary font-brand">TimeDive</span>
+          <span className="hidden sm:inline text-2xl font-bold tracking-tight text-primary font-brand">TimeDive</span>
         </Link>
-        
-        <div className="flex items-center gap-4">
+
+        <div className="flex items-center gap-2 sm:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" aria-label="Accessibility options" data-testid="button-accessibility">
@@ -72,8 +72,9 @@ export function Navbar() {
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="gap-2">
-                    {user.displayName} <Settings size={16} />
+                  <Button variant="outline" className="gap-2 max-w-[120px] sm:max-w-none" aria-label={`${user.displayName} — account menu`}>
+                    <span className="truncate hidden sm:inline">{user.displayName}</span>
+                    <Settings size={16} className="shrink-0" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
