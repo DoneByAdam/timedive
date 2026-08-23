@@ -29,6 +29,11 @@ export function ReadAloud({ text }: { text: string }) {
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
   const [showVoices, setShowVoices] = useState(false);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  // window.speechSynthesis.pause()/resume() is unreliable across browsers —
+  // on several platforms resume() restarts from the beginning instead of
+  // continuing. We track how far into `text` we've spoken via word-boundary
+  // events and "resume" by re-speaking from that offset instead.
+  const positionRef = useRef(0);
 
   useEffect(() => {
     if (!window.speechSynthesis) { setSupported(false); return; }
@@ -48,12 +53,13 @@ export function ReadAloud({ text }: { text: string }) {
 
   if (!supported) return null;
 
-  const speak = (rate = speed, voice = selectedVoice) => {
+  const speak = (rate = speed, voice = selectedVoice, fromIndex = 0) => {
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
+    const utterance = new SpeechSynthesisUtterance(text.slice(fromIndex));
     utterance.rate = rate;
     if (voice) utterance.voice = voice;
-    utterance.onend = () => setIsPlaying(false);
+    utterance.onboundary = (e) => { positionRef.current = fromIndex + e.charIndex; };
+    utterance.onend = () => { positionRef.current = 0; setIsPlaying(false); };
     utterance.onerror = () => setIsPlaying(false);
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
@@ -62,33 +68,29 @@ export function ReadAloud({ text }: { text: string }) {
 
   const togglePlay = () => {
     if (isPlaying) {
-      window.speechSynthesis.pause();
+      window.speechSynthesis.cancel();
       setIsPlaying(false);
     } else {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-        setIsPlaying(true);
-      } else {
-        speak();
-      }
+      speak(speed, selectedVoice, positionRef.current);
     }
   };
 
   const stop = () => {
     window.speechSynthesis.cancel();
+    positionRef.current = 0;
     setIsPlaying(false);
   };
 
   const cycleSpeed = () => {
     const next = speed === 1 ? 1.25 : speed === 1.25 ? 1.5 : speed === 1.5 ? 0.75 : 1;
     setSpeed(next);
-    if (isPlaying) speak(next);
+    if (isPlaying) speak(next, selectedVoice, positionRef.current);
   };
 
   const handleVoiceSelect = (voice: SpeechSynthesisVoice) => {
     setSelectedVoice(voice);
     setShowVoices(false);
-    if (isPlaying) speak(speed, voice);
+    if (isPlaying) speak(speed, voice, positionRef.current);
   };
 
   // Show only English voices + deduplicate by name
