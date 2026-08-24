@@ -73,8 +73,8 @@ export function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" className="gap-2 max-w-[120px] sm:max-w-none" aria-label={`${user.displayName} — account menu`}>
+                    {user.avatar ? <span className="text-lg leading-none shrink-0">{user.avatar}</span> : <Settings size={16} className="shrink-0" />}
                     <span className="truncate hidden sm:inline">{user.displayName}</span>
-                    <Settings size={16} className="shrink-0" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">

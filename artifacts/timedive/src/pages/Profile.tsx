@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Submarine } from '@/components/Submarine';
+import { AVATAR_OPTIONS } from '@/lib/avatars';
 
 export default function Profile() {
   const { data: profile, isLoading } = useGetProfile();
@@ -17,24 +18,27 @@ export default function Profile() {
   const [displayName, setDisplayName] = useState('');
   const [ageMode, setAgeMode] = useState<ProfileUpdateAgeMode | ''>('');
   const [recapEmailOptIn, setRecapEmailOptIn] = useState(false);
+  const [avatar, setAvatar] = useState<string | null>(null);
 
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName);
       setAgeMode(profile.ageMode || '');
       setRecapEmailOptIn(profile.recapEmailOptIn || false);
+      setAvatar(profile.avatar ?? null);
     }
   }, [profile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfile.mutate(
-      { 
-        data: { 
-          displayName, 
+      {
+        data: {
+          displayName,
           ageMode: ageMode as ProfileUpdateAgeMode,
-          recapEmailOptIn 
-        } 
+          recapEmailOptIn,
+          avatar,
+        }
       },
       {
         onSuccess: () => {
@@ -74,6 +78,26 @@ export default function Profile() {
               <p className="text-xs text-muted-foreground">Email cannot be changed.</p>
             </div>
             
+            <div className="space-y-3">
+              <Label>Avatar</Label>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {AVATAR_OPTIONS.map(emoji => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => setAvatar(emoji)}
+                    className={`aspect-square rounded-lg text-2xl flex items-center justify-center border-2 transition-colors ${
+                      avatar === emoji ? 'border-primary bg-primary/10' : 'border-transparent bg-muted/50 hover:border-primary/50'
+                    }`}
+                    aria-label={`Choose ${emoji} avatar`}
+                    aria-pressed={avatar === emoji}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="displayName">Display Name</Label>
               <Input

@@ -61,6 +61,9 @@ export interface AuthUser {
   ageMode?: AuthUserAgeMode;
   /** @nullable */
   gradeLevel?: number | null;
+  /** @nullable */
+  avatar?: string | null;
+  emailVerified?: boolean;
   /** Bearer token for mobile clients (returned on login/register) */
   token?: string;
 }
@@ -89,6 +92,9 @@ export interface UserProfile {
   gradeLevel?: number | null;
   onboardingComplete: boolean;
   recapEmailOptIn?: boolean;
+  /** @nullable */
+  avatar?: string | null;
+  emailVerified?: boolean;
   createdAt: string;
   /** @nullable */
   lastLoginAt?: string | null;
@@ -112,6 +118,8 @@ export interface ProfileUpdate {
   gradeLevel?: number | null;
   onboardingComplete?: boolean;
   recapEmailOptIn?: boolean;
+  /** @nullable */
+  avatar?: string | null;
 }
 
 export interface UserPreferences {

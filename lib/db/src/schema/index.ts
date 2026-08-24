@@ -6,3 +6,4 @@ export * from "./progress";
 export * from "./badges";
 export * from "./passwordResetTokens";
 export * from "./contactMessages";
+export * from "./emailVerificationTokens";

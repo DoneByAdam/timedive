@@ -39,6 +39,20 @@ export function useGetPublicStory(token: string | undefined) {
   });
 }
 
+export function useVerifyEmail() {
+  return useMutation({
+    mutationFn: (token: string) =>
+      customFetch<MessageResponse>(`/api/auth/verify-email/${token}`),
+  });
+}
+
+export function useResendVerification() {
+  return useMutation({
+    mutationFn: () =>
+      customFetch<MessageResponse>('/api/auth/resend-verification', { method: 'POST' }),
+  });
+}
+
 export function useSubmitContact() {
   return useMutation({
     mutationFn: (data: ContactInput) =>

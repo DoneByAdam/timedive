@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, usersTable, userPreferencesTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/requireAuth";
+import { isValidAvatar } from "../lib/avatars";
 
 const router: IRouter = Router();
 
@@ -21,6 +22,8 @@ router.get("/users/me/profile", requireAuth, async (req, res): Promise<void> => 
     gradeLevel: user.gradeLevel,
     onboardingComplete: user.onboardingComplete,
     recapEmailOptIn: user.recapEmailOptIn,
+    avatar: user.avatar,
+    emailVerified: user.emailVerified,
     createdAt: user.createdAt,
     lastLoginAt: user.lastLoginAt,
   });
@@ -28,7 +31,12 @@ router.get("/users/me/profile", requireAuth, async (req, res): Promise<void> => 
 
 router.put("/users/me/profile", requireAuth, async (req, res): Promise<void> => {
   const userId = req.session!.userId as number;
-  const { displayName, ageMode, age, gradeLevel, onboardingComplete, recapEmailOptIn } = req.body;
+  const { displayName, ageMode, age, gradeLevel, onboardingComplete, recapEmailOptIn, avatar } = req.body;
+
+  if (avatar !== undefined && avatar !== null && !isValidAvatar(avatar)) {
+    res.status(400).json({ error: "Invalid avatar selection" });
+    return;
+  }
 
   const updates: Record<string, unknown> = {};
   if (displayName !== undefined) updates.displayName = displayName;
@@ -37,6 +45,7 @@ router.put("/users/me/profile", requireAuth, async (req, res): Promise<void> => 
   if (gradeLevel !== undefined) updates.gradeLevel = gradeLevel;
   if (onboardingComplete !== undefined) updates.onboardingComplete = onboardingComplete;
   if (recapEmailOptIn !== undefined) updates.recapEmailOptIn = recapEmailOptIn;
+  if (avatar !== undefined) updates.avatar = avatar;
 
   const [user] = await db.update(usersTable).set(updates).where(eq(usersTable.id, userId)).returning();
   res.json({
@@ -48,6 +57,8 @@ router.put("/users/me/profile", requireAuth, async (req, res): Promise<void> => 
     gradeLevel: user.gradeLevel,
     onboardingComplete: user.onboardingComplete,
     recapEmailOptIn: user.recapEmailOptIn,
+    avatar: user.avatar,
+    emailVerified: user.emailVerified,
     createdAt: user.createdAt,
     lastLoginAt: user.lastLoginAt,
   });

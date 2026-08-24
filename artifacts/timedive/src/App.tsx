@@ -9,6 +9,7 @@ import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import { VerifyEmailBanner } from '@/components/VerifyEmailBanner';
 
 import Home from '@/pages/Home';
 import Login from '@/pages/Login';
@@ -27,6 +28,7 @@ import StoryGenerator from '@/pages/StoryGenerator';
 import MyStories from '@/pages/MyStories';
 import SharedStory from '@/pages/SharedStory';
 import Contact from '@/pages/Contact';
+import VerifyEmail from '@/pages/VerifyEmail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +70,7 @@ function Router() {
   return (
     <div className="min-h-[100dvh] flex flex-col">
       <Navbar />
+      <VerifyEmailBanner />
       <main className="flex-1">
         <RoutedErrorBoundary>
           <Switch>
@@ -109,6 +112,7 @@ function Router() {
             </Route>
             <Route path="/shared/:token" component={SharedStory} />
             <Route path="/contact" component={Contact} />
+            <Route path="/verify-email" component={VerifyEmail} />
 
             <Route component={NotFound} />
           </Switch>

@@ -12,6 +12,10 @@ export const usersTable = pgTable("users", {
   gradeLevel: integer("grade_level"),
   onboardingComplete: boolean("onboarding_complete").notNull().default(false),
   recapEmailOptIn: boolean("recap_email_opt_in").notNull().default(false),
+  // A preset key (e.g. "submarine") rather than an uploaded image — see
+  // AVATAR_OPTIONS on the frontend for the full set.
+  avatar: text("avatar"),
+  emailVerified: boolean("email_verified").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
 });
