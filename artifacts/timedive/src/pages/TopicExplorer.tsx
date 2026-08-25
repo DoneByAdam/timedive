@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import {
   ERAS,
   THEMES,
+  TOPICS,
   type Topic,
   filterTopics,
   topicsByEra,
@@ -39,6 +40,9 @@ export default function TopicExplorer() {
   const age = profile?.age ?? undefined;
   const gradeBandId = age != null ? gradeBandIdForAge(age) : undefined;
   const gradeBand = gradeBandId ? getGradeBand(gradeBandId) : undefined;
+  // The grade bands only cover ages 5-18 — outside that (adults, mainly),
+  // there's no single band to recommend, so show everything instead.
+  const outsideDefinedBands = age != null && !gradeBandId;
 
   const regions = useMemo(() => allRegions(), []);
   // Reversed to match Timeline's existing convention: scrolling down means
@@ -50,10 +54,11 @@ export default function TopicExplorer() {
     [eraId, themeId, region, spotlightOnly],
   );
 
-  const recommended = useMemo(
-    () => (gradeBandId ? filterTopics({ gradeBandId }) : []),
-    [gradeBandId],
-  );
+  const recommended = useMemo(() => {
+    if (gradeBandId) return filterTopics({ gradeBandId });
+    if (outsideDefinedBands) return TOPICS;
+    return [];
+  }, [gradeBandId, outsideDefinedBands]);
 
   const proceedToStory = (topic: Topic) => {
     markExplored(topic.id);
@@ -232,10 +237,14 @@ export default function TopicExplorer() {
               <>
                 <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
                   <p className="text-blue-100">
-                    Showing topics for <strong>{gradeBand?.label}</strong> ({gradeBand?.ages} years old)
+                    {outsideDefinedBands ? (
+                      <>Our grade bands cover ages 5–18, so here's the full library at your reading level.</>
+                    ) : (
+                      <>Showing topics for <strong>{gradeBand?.label}</strong> ({gradeBand?.ages} years old)</>
+                    )}
                   </p>
                   <Button variant="link" className="text-blue-200" onClick={() => setView('explore')}>
-                    Browse the full library →
+                    Browse with filters →
                   </Button>
                 </div>
                 {recommended.length === 0 ? (

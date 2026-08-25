@@ -67,15 +67,17 @@ function parseAgeRange(ages: string): [number, number] {
   return [min, max];
 }
 
-// Map an age to the grade band it falls into; clamps to the nearest band
-// for ages outside the defined bands entirely (e.g. adults).
-export function gradeBandIdForAge(age: number): string {
+// Map an age to the grade band it falls into. The bands only cover ages
+// 5-18 (they're school-grade-based); returns undefined outside that —
+// callers should fall back to showing the full library rather than
+// clamping to the nearest band, which would mislabel e.g. an adult as
+// "Historian (14-18 years old)".
+export function gradeBandIdForAge(age: number): string | undefined {
   for (const band of GRADE_BANDS) {
     const [min, max] = parseAgeRange(band.ages);
     if (age >= min && age <= max) return band.id;
   }
-  const [firstMin] = parseAgeRange(GRADE_BANDS[0].ages);
-  return age < firstMin ? GRADE_BANDS[0].id : GRADE_BANDS[GRADE_BANDS.length - 1].id;
+  return undefined;
 }
 
 export interface TopicFilters {
