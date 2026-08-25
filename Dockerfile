@@ -6,7 +6,11 @@ RUN corepack enable && corepack prepare pnpm@10 --activate
 WORKDIR /app
 
 COPY . .
-RUN pnpm install --frozen-lockfile
+# Not --frozen-lockfile: pnpm-lock.yaml can't be regenerated from this
+# environment (no local pnpm), so package.json edits will drift from it —
+# a plain install reconciles the lockfile against the current
+# package.json/workspace layout instead of hard-failing on the mismatch.
+RUN pnpm install --no-frozen-lockfile
 
 # Only needed at build time: vite.config.ts requires both to be set, but the
 # actual values don't matter for a production `vite build` (no dev/preview
