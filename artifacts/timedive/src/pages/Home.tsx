@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useGetDashboardSummary } from '@workspace/api-client-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Trophy, BookOpen, Anchor, Compass } from 'lucide-react';
+import { ArrowRight, Trophy, BookOpen, Anchor, Compass, Map } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 export default function Home() {
@@ -90,9 +90,14 @@ function Dashboard() {
           <h1 className="text-3xl font-bold">Welcome back, {user?.displayName}!</h1>
           <p className="text-muted-foreground mt-2">Ready for your next historical dive?</p>
         </div>
-        <Button asChild size="lg">
-          <Link href="/timeline"><Anchor className="mr-2 h-5 w-5" /> Open Timeline</Link>
-        </Button>
+        <div className="flex gap-3 flex-wrap">
+          <Button asChild size="lg">
+            <Link href="/timeline"><Anchor className="mr-2 h-5 w-5" /> Open Timeline</Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/explore"><Map className="mr-2 h-5 w-5" /> Topic Explorer</Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-8">

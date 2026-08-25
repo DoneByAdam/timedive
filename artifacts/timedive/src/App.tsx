@@ -25,6 +25,7 @@ import Preferences from '@/pages/Preferences';
 import Progress from '@/pages/Progress';
 import Settings from '@/pages/Settings';
 import StoryGenerator from '@/pages/StoryGenerator';
+import TopicExplorer from '@/pages/TopicExplorer';
 import MyStories from '@/pages/MyStories';
 import SharedStory from '@/pages/SharedStory';
 import Contact from '@/pages/Contact';
@@ -106,6 +107,9 @@ function Router() {
             </Route>
             <Route path="/story-generator">
               <ProtectedRoute component={StoryGenerator} />
+            </Route>
+            <Route path="/explore">
+              <ProtectedRoute component={TopicExplorer} />
             </Route>
             <Route path="/my-stories">
               <ProtectedRoute component={MyStories} />
