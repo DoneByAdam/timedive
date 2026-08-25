@@ -12,7 +12,7 @@ import { verifyMobileToken } from "./lib/mobileToken";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app: Express = express();
-// Trust the Replit reverse proxy so secure cookies and X-Forwarded-* headers work correctly
+// Trust the platform's reverse proxy (Railway) so secure cookies and X-Forwarded-* headers work correctly
 app.set("trust proxy", 1);
 
 app.use(
