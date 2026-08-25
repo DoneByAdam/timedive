@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import {
   ERAS,
   THEMES,
+  GRADE_BANDS,
   TOPICS,
   type Topic,
   filterTopics,
@@ -35,6 +36,7 @@ export default function TopicExplorer() {
   const [eraId, setEraId] = useState<string | undefined>();
   const [themeId, setThemeId] = useState<string | undefined>();
   const [region, setRegion] = useState<string | undefined>();
+  const [filterGradeBandId, setFilterGradeBandId] = useState<string | undefined>();
   const [spotlightOnly, setSpotlightOnly] = useState(false);
 
   const age = profile?.age ?? undefined;
@@ -50,8 +52,8 @@ export default function TopicExplorer() {
   const eraGroups = useMemo(() => [...topicsByEra()].reverse(), []);
 
   const freelyFiltered = useMemo(
-    () => filterTopics({ eraId, themeId, region, spotlightOnly }),
-    [eraId, themeId, region, spotlightOnly],
+    () => filterTopics({ eraId, themeId, region, gradeBandId: filterGradeBandId, spotlightOnly }),
+    [eraId, themeId, region, filterGradeBandId, spotlightOnly],
   );
 
   const recommended = useMemo(() => {
@@ -182,6 +184,13 @@ export default function TopicExplorer() {
                   onSelect={id => setRegion(prev => (prev === id ? undefined : id))}
                 />
               </FilterRow>
+              <FilterRow label="Age group">
+                <FilterChips
+                  options={GRADE_BANDS.map(g => ({ id: g.id, label: `${g.label} (${g.ages})` }))}
+                  active={filterGradeBandId}
+                  onSelect={id => setFilterGradeBandId(prev => (prev === id ? undefined : id))}
+                />
+              </FilterRow>
               <div className="flex items-center gap-2 pt-1 flex-wrap">
                 <Button
                   type="button"
@@ -193,12 +202,12 @@ export default function TopicExplorer() {
                 >
                   <Compass size={14} aria-hidden /> Hidden Histories only
                 </Button>
-                {(eraId || themeId || region || spotlightOnly) && (
+                {(eraId || themeId || region || filterGradeBandId || spotlightOnly) && (
                   <Button
                     type="button"
                     size="sm"
                     variant="ghost"
-                    onClick={() => { setEraId(undefined); setThemeId(undefined); setRegion(undefined); setSpotlightOnly(false); }}
+                    onClick={() => { setEraId(undefined); setThemeId(undefined); setRegion(undefined); setFilterGradeBandId(undefined); setSpotlightOnly(false); }}
                   >
                     Clear filters
                   </Button>
