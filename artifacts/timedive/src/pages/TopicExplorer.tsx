@@ -41,7 +41,9 @@ export default function TopicExplorer() {
   const gradeBand = gradeBandId ? getGradeBand(gradeBandId) : undefined;
 
   const regions = useMemo(() => allRegions(), []);
-  const eraGroups = useMemo(() => topicsByEra(), []);
+  // Reversed to match Timeline's existing convention: scrolling down means
+  // diving deeper, i.e. further back in time (recent eras first, ancient last).
+  const eraGroups = useMemo(() => [...topicsByEra()].reverse(), []);
 
   const freelyFiltered = useMemo(
     () => filterTopics({ eraId, themeId, region, spotlightOnly }),

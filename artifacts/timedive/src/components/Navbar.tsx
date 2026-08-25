@@ -81,6 +81,23 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  {/* Mirrors the horizontal nav links, which are hidden below sm to
+                      avoid crowding — this is the only way to reach them on mobile. */}
+                  <div className="sm:hidden">
+                    <DropdownMenuItem asChild>
+                      <Link href="/timeline" className="flex items-center gap-2"><Compass size={14} /> Timeline</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/explore" className="flex items-center gap-2"><Map size={14} /> Explore</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/story-generator" className="flex items-center gap-2"><Sparkles size={14} /> Story Generator</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/progress" className="flex items-center gap-2"><User size={14} /> Progress</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </div>
                   <DropdownMenuItem asChild>
                     <Link href="/my-stories" className="flex items-center gap-2"><BookOpen size={14} /> My Stories</Link>
                   </DropdownMenuItem>
