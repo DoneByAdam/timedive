@@ -16,6 +16,7 @@ export default function Profile() {
   const { toast } = useToast();
 
   const [displayName, setDisplayName] = useState('');
+  const [age, setAge] = useState('');
   const [ageMode, setAgeMode] = useState<ProfileUpdateAgeMode | ''>('');
   const [recapEmailOptIn, setRecapEmailOptIn] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -23,6 +24,7 @@ export default function Profile() {
   useEffect(() => {
     if (profile) {
       setDisplayName(profile.displayName);
+      setAge(profile.age != null ? String(profile.age) : '');
       setAgeMode(profile.ageMode || '');
       setRecapEmailOptIn(profile.recapEmailOptIn || false);
       setAvatar(profile.avatar ?? null);
@@ -31,10 +33,12 @@ export default function Profile() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const ageNum = age.trim() ? parseInt(age, 10) : null;
     updateProfile.mutate(
       {
         data: {
           displayName,
+          age: ageNum != null && !isNaN(ageNum) ? ageNum : null,
           ageMode: ageMode as ProfileUpdateAgeMode,
           recapEmailOptIn,
           avatar,
@@ -108,6 +112,23 @@ export default function Profile() {
               />
             </div>
             
+            <div className="space-y-2">
+              <Label htmlFor="age">Age</Label>
+              <Input
+                id="age"
+                type="number"
+                min={4}
+                max={120}
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                placeholder="e.g. 12"
+                className="w-32"
+              />
+              <p className="text-xs text-muted-foreground">
+                Used to recommend age-appropriate topics in the Topic Explorer.
+              </p>
+            </div>
+
             <div className="space-y-3">
               <Label>Age Mode (Reading Level)</Label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
