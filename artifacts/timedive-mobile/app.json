@@ -41,6 +41,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "58b99c89-7225-4d86-92d7-4513bc91817b"
+      }
+    },
+    "owner": "timedive"
   }
 }
