@@ -29,6 +29,7 @@ import TopicExplorer from '@/pages/TopicExplorer';
 import MyStories from '@/pages/MyStories';
 import SharedStory from '@/pages/SharedStory';
 import Contact from '@/pages/Contact';
+import Privacy from '@/pages/Privacy';
 import VerifyEmail from '@/pages/VerifyEmail';
 
 const queryClient = new QueryClient({
@@ -116,6 +117,7 @@ function Router() {
             </Route>
             <Route path="/shared/:token" component={SharedStory} />
             <Route path="/contact" component={Contact} />
+            <Route path="/privacy" component={Privacy} />
             <Route path="/verify-email" component={VerifyEmail} />
 
             <Route component={NotFound} />
