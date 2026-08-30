@@ -24,8 +24,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import colors from '@/constants/colors';
 
-// Expo bundles run outside the web proxy and need absolute URLs.
-setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN}`);
+// Expo bundles run outside the web proxy and need absolute URLs. Falls back
+// to the production API when EXPO_PUBLIC_DOMAIN isn't set (e.g. EAS builds,
+// which don't have Replit's dev-domain env vars).
+setBaseUrl(`https://${process.env.EXPO_PUBLIC_DOMAIN || 'mytimedive.com'}`);
 setAuthTokenGetter(() => getToken());
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
